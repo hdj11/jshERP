@@ -6,6 +6,8 @@
     <!-- 指定以IE8的方式来渲染 -->
     <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8"/>
     <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" href="/js/bootstrap/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="/css/jsherp.css"/>
     <link rel="stylesheet" type="text/css" href="/js/easyui/themes/default/easyui.css"/>
     <link rel="stylesheet" type="text/css" href="/js/easyui/themes/icon.css"/>
     <link type="text/css" rel="stylesheet" href="/css/common.css"/>
@@ -17,19 +19,18 @@
 <body>
 <!-- 数据显示table -->
 <div id="tablePanel" class="easyui-panel" data-options="fit:true" style="padding:1px;top:300px;" title="计量单位列表" iconCls="icon-list">
-    <table id="searchTable">
-        <tr>
-            <td>计量单位：</td>
-            <td>
-                <input type="text" name="searchName" id="searchName" class="easyui-textbox" style="width:100px;"/>
-            </td>
-            <td>&nbsp;</td>
-            <td>
-                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" id="searchBtn">查询</a>&nbsp;&nbsp;
-                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-redo" id="searchResetBtn">重置</a>
-            </td>
-        </tr>
-    </table>
+    <div class="box-body form-inline">
+        <div class="form-group">
+            <label class="control-label">计量单位：</label>
+            <div class="control-inline">
+                <input type="text" id="searchName" name="searchName" value="" maxlength="100" class="easyui-textbox width-90"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" id="searchBtn">查询</a>&nbsp;
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-redo" id="searchResetBtn">重置</a>
+        </div>
+    </div>
     <table id="tableData" style="top:300px;border-bottom-color:#FFFFFF"></table>
 </div>
 
@@ -347,7 +348,10 @@
             dataType: "json",
             data: ({
                 info: JSON.stringify({
-                    uname: name
+                    uname: name,
+                    basicUnit: basicName,
+                    otherUnit: otherName,
+                    ratio: otherNum
                 })
             }),
             success: function(res) {
@@ -369,22 +373,14 @@
     //编辑信息
     function editUnit(index) {
         var rowsdata = $("#tableData").datagrid("getRows")[index];
-
         oldUnit = rowsdata.uname;
         $('#unitDlg').dialog('open').dialog('setTitle', '<img src="/js/easyui/themes/icons/pencil.png"/>&nbsp;编辑计量单位');
         $(".window-mask").css({width: webW, height: webH});
         unitID = rowsdata.id;
-        //焦点在名称输入框==定焦在输入文字后面
-        var name = rowsdata.uname;
-        var basicName = name.substring(0, name.indexOf(",")); //基础单位
-        $("#basicName").textbox("setValue", basicName);
-        var otherItem = name.substring(name.indexOf(",") + 1);
-        var otherName = otherItem.substring(0, otherItem.indexOf("("));
-        $("#otherName").textbox("setValue", otherName);
-        var lastNum = otherItem.substring(otherItem.indexOf(":") + 1);
-        lastNum = lastNum.replace(")", "");
-        $("#otherNum").textbox("setValue", lastNum);
-        $("#unitName").text(basicName);
+        $("#basicName").textbox("setValue", rowsdata.basicUnit);
+        $("#otherName").textbox("setValue", rowsdata.otherUnit);
+        $("#otherNum").textbox("setValue", rowsdata.ratio);
+        $("#unitName").text(rowsdata.basicUnit);
         url = '/unit/update?id=' + rowsdata.id;
     }
 

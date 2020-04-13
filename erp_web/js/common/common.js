@@ -23,6 +23,33 @@
 		return o;
 	};
 
+	/**
+	 * 扩展datagrid的editors方法，支持combogrid
+	 */
+	if($.fn.datagrid) {
+		$.extend($.fn.datagrid.defaults.editors, {
+			combogrid: {
+				init: function (container, options) {
+					var input = $('<input type="text" style="height: 22px;" class="datagrid-editable-input">').appendTo(container);
+					input.combogrid(options);
+					return input;
+				},
+				destroy: function (target) {
+					$(target).combogrid('destroy');
+				},
+				getValue: function (target) {
+					return $(target).combogrid('getValue');
+				},
+				setValue: function (target, value) {
+					$(target).combogrid('setValue', value);
+				},
+				resize: function (target, width) {
+					$(target).combogrid('resize', width);
+				}
+			}
+		});
+	}
+
 	$(function() {
 		domresize();
 	});
@@ -39,8 +66,7 @@
 		webH = document.documentElement.clientHeight;
 		webW = document.documentElement.offsetWidth;
 		widthInfo = $("body").outerWidth() -27;
-		var mtopH = $("#searchTable").outerHeight();
-		var positionH = $("#position").outerHeight();
+		var mtopH = $(".box-body").outerHeight();
 		heightInfo = webH - mtopH - 86;
 
 		//分页信息修改成 15条
@@ -56,11 +82,11 @@
 		}
 	}
     function dgResize() {
-		var searchTabHeight = $('#searchTable').height();
+		var searchTabHeight = $('.box-body').height();
 		if($('#tableData').length) {
             $('#tableData').datagrid('resize', {
                 width: $(window).width() - 6,
-                height: $(window).height() - searchTabHeight -46
+                height: $(window).height() - searchTabHeight -43
             });
 		}
     }
@@ -107,7 +133,7 @@
                 currentPage: 1,
                 pageSize: 100
             }),
-            async: false,
+            async: false, //设置为同步
             success: function (res) {
                 if (res && res.code === 200) {
                     if(res.data && res.data.page) {
@@ -126,6 +152,26 @@
         });
         return info;
     }
+
+	//初始化系统基础信息
+	function getSystemDepot(){
+		var depotList = null;
+		$.ajax({
+			type:"get",
+			url: "/depot/getAllList",
+			async:false, //设置为同步
+			dataType: "json",
+			success: function (res) {
+				if(res && res.code === 200) {
+					depotList = res.data;
+				} else {
+					$.messager.alert('提示', '查找系统基础信息异常,请与管理员联系！', 'error');
+					return;
+				}
+			}
+		});
+		return depotList;
+	}
 
 	/**
 	 * js生成唯一ID值 32位值随机值
@@ -374,4 +420,65 @@
             res = false;
 		}
 		return res;
+	}
+
+	/**
+	 * 判断一个值是否数字
+	 * @param value
+	 * @returns {boolean}
+	 */
+	function myIsNaN(value) {
+		return typeof value === 'number' && !isNaN(value);
+	}
+
+	/**
+	 * 敲回车键自动跳转到下一个文本框
+	 * @param inputDom
+	 */
+	function autoJumpNextInput(inputDom, appendDom) {
+		inputDom.on("keydown","input:text:visible",function(e){
+			//响应回车键按下的处理
+			var e = event || window.event || arguments.callee.caller.arguments[0];
+			//捕捉是否按键为回车键，可百度JS键盘事件了解更多
+			if(e && e.keyCode==13) {
+				//捕捉inputDom下的文本输入框的个数
+				var inputs = inputDom.find("input:text:visible");
+				//console.log(inputs.length);
+				var idx = inputs.index(this);                         // 获取当前焦点输入框所处的位置
+				if (idx == inputs.length - 1) {                       // 判断是否是最后一个输入框
+					var curKey = e.which;
+					if (curKey == 13) {
+						appendDom.click(); //新增行
+					}
+				} else {
+					inputs[idx + 1].focus(); // 设置焦点
+					inputs[idx + 1].select(); // 选中文字
+				}
+			}
+		});
+	}
+
+	// 格式化日期，如月、日、时、分、秒保证为2位数
+	function formatNumber (n) {
+		n = n.toString();
+		return n[1] ? n : '0' + n;
+	}
+
+	// 参数number为毫秒时间戳，format为需要转换成的日期格式
+	function formatTime(number, format) {
+		if(number) {
+			var time = new Date(number);
+			var newArr = [];
+			var formatArr = ['Y', 'M', 'D', 'h', 'm', 's'];
+			newArr.push(time.getFullYear());
+			newArr.push(formatNumber(time.getMonth() + 1));
+			newArr.push(formatNumber(time.getDate()));
+			newArr.push(formatNumber(time.getHours()));
+			newArr.push(formatNumber(time.getMinutes()));
+			newArr.push(formatNumber(time.getSeconds()));
+			for (var i in newArr) {
+				format = format.replace(formatArr[i], newArr[i]);
+			}
+			return format;
+		}
 	}

@@ -94,6 +94,14 @@ public class DepotHeadService {
         }
         if (null != list) {
             for (DepotHeadVo4List dh : list) {
+                if(dh.getAccountidlist() != null) {
+                    String accountidlistStr = dh.getAccountidlist().replace("[", "").replace("]", "").replaceAll("\"", "");
+                    dh.setAccountidlist(accountidlistStr);
+                }
+                if(dh.getAccountmoneylist() != null) {
+                    String accountmoneylistStr = dh.getAccountmoneylist().replace("[", "").replace("]", "").replaceAll("\"", "");
+                    dh.setAccountmoneylist(accountmoneylistStr);
+                }
                 if(dh.getOthermoneylist() != null) {
                     String otherMoneyListStr = dh.getOthermoneylist().replace("[", "").replace("]", "").replaceAll("\"", "");
                     dh.setOthermoneylist(otherMoneyListStr);
@@ -291,20 +299,6 @@ public class DepotHeadService {
         return list;
     }
 
-    public List<DepotHead> getDepotHeadGiftOut(String projectId)throws Exception {
-        DepotHeadExample example = new DepotHeadExample();
-        if (projectId != null) {
-            example.createCriteria().andProjectidEqualTo(Long.parseLong(projectId));
-        }
-        List<DepotHead> list = null;
-        try{
-            list =depotHeadMapper.selectByExample(example);
-        }catch(Exception e){
-            JshException.readFail(logger, e);
-        }
-        return list;
-    }
-
     public List<DepotHeadVo4InDetail> findByAll(String beginTime, String endTime, String type, Integer pid, String dids, Integer oId, Integer offset, Integer rows) throws Exception{
         List<DepotHeadVo4InDetail> list = null;
         try{
@@ -464,13 +458,14 @@ public class DepotHeadService {
     }
 
     /**
-     *  新增单据主表及单据子表信息
-     * create time: 2019/1/25 14:36
-     * @Param: beanJson
-     * @Param: inserted
-     * @Param: deleted
-     * @Param: updated
-     * @return java.lang.String
+     * 新增单据主表及单据子表信息
+     * @param beanJson
+     * @param inserted
+     * @param deleted
+     * @param updated
+     * @param tenantId
+     * @param request
+     * @throws Exception
      */
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void addDepotHeadAndDetail(String beanJson, String inserted, String deleted, String updated,Long tenantId,
@@ -519,16 +514,18 @@ public class DepotHeadService {
             }
         }
     }
+
     /**
      * 更新单据主表及单据子表信息
-     * create time: 2019/1/28 14:47
-     * @Param: id
-     * @Param: beanJson
-     * @Param: inserted
-     * @Param: deleted
-     * @Param: updated
-     * @Param: preTotalPrice
-     * @return java.lang.Object
+     * @param id
+     * @param beanJson
+     * @param inserted
+     * @param deleted
+     * @param updated
+     * @param preTotalPrice
+     * @param tenantId
+     * @param request
+     * @throws Exception
      */
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void updateDepotHeadAndDetail(Long id, String beanJson, String inserted, String deleted, String updated,
@@ -542,7 +539,6 @@ public class DepotHeadService {
         depotHead.setId(id);
         User userInfo=userService.getCurrentUser();
         depotHead.setOperpersonname(userInfo==null?null:userInfo.getUsername());
-        depotHead.setOpertime(new Timestamp(System.currentTimeMillis()));
         try{
             depotHeadMapper.updateByPrimaryKeySelective(depotHead);
         }catch(Exception e){
@@ -559,12 +555,9 @@ public class DepotHeadService {
     }
 
     /**
-     * create by: cjl
-     * description:
-     *  删除单据主表及子表信息
-     * create time: 2019/1/28 17:29
-     * @Param: id
-     * @return java.lang.Object
+     * 删除单据主表及子表信息
+     * @param id
+     * @throws Exception
      */
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void deleteDepotHeadAndDetail(Long id) throws Exception {
@@ -603,13 +596,11 @@ public class DepotHeadService {
         /**删除单据主表信息*/
         batchDeleteDepotHeadByIds(id.toString());
     }
+
     /**
-     * create by: cjl
-     * description:
-     *  批量删除单据主表及子表信息
-     * create time: 2019/1/28 17:29
-     * @Param: id
-     * @return java.lang.Object
+     * 批量删除单据主表及子表信息
+     * @param ids
+     * @throws Exception
      */
     @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void batchDeleteDepotHeadAndDetail(String ids) throws Exception{

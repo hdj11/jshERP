@@ -6,6 +6,8 @@
     <!-- 指定以IE8的方式来渲染 -->
     <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8"/>
     <link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" href="/js/bootstrap/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="/css/jsherp.css"/>
     <script type="text/javascript" src="/js/jquery-1.8.0.min.js"></script>
     <script type="text/javascript" src="/js/print/print.js"></script>
     <link rel="stylesheet" type="text/css" href="/js/easyui/themes/default/easyui.css"/>
@@ -19,29 +21,27 @@
 <body>
 <!-- 数据显示table -->
 <div id="tablePanel" class="easyui-panel" data-options="fit:true" style="padding:1px;top:300px;" title="库存状况列表" iconCls="icon-list">
-    <table id="searchTable">
-        <tr>
-            <td>仓库：</td>
-            <td>
+    <div class="box-body form-inline">
+        <div class="form-group">
+            <label class="control-label">仓库：</label>
+            <div class="control-inline">
                 <select name="searchProjectId" id="searchProjectId" style="width:100px;height: 30px;border: 1px solid #95B8E7;border-radius:5px;"></select>
-            </td>
-            <td>&nbsp;</td>
-            <td>月份：</td>
-            <td>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label">月份：</label>
+            <div class="control-inline">
                 <input type="text" name="searchMonth" id="searchMonth" onClick="WdatePicker({dateFmt:'yyyy-MM'})"
                        class="txt Wdate" style="width:180px;height: 30px;border: 1px solid #95B8E7;border-radius:5px;"/>
-            </td>
-            <td>&nbsp;</td>
-            <td>
-                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" id="searchBtn">查询</a>
-                &nbsp;&nbsp;
-                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-redo" id="exprotBtn">导出</a>
-                &nbsp;&nbsp;
-                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-print" id="printBtn">打印</a>
-                &nbsp;&nbsp;<span class="total-count"></span>
-            </td>
-        </tr>
-    </table>
+            </div>
+        </div>
+        <div class="form-group">
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" id="searchBtn">查询</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-redo" id="exprotBtn">导出</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-print" id="printBtn">打印</a>
+            &nbsp;&nbsp;<span class="total-count"></span>
+        </div>
+    </div>
     <table id="tableData" style="top:300px;border-bottom-color:#FFFFFF"></table>
 </div>
 
@@ -204,16 +204,16 @@
             pageSize: 10,
             pageList: [10, 50, 100],
             columns: [[
-                {title: '名称', field: 'MaterialName', width: 60},
+                {title: '名称', field: 'MaterialName', width: 160},
                 {title: '型号', field: 'MaterialModel', width: 80},
-                {title: '扩展信息', field: 'MaterialOther', width: 150},
+                {title: '扩展信息', field: 'MaterialOther', width: 120},
                 {title: '单位', field: 'unitName', width: 80},
                 {title: '单价', field: 'UnitPrice', width: 60},
-                {title: '上月结存数量', field: 'prevSum', width: 80},
-                {title: '入库数量', field: 'InSum', width: 60},
-                {title: '出库数量', field: 'OutSum', width: 60},
-                {title: '本月结存数量', field: 'thisSum', width: 80},
-                {title: '结存金额', field: 'thisAllPrice', width: 60}
+                {title: '上月结存数量', field: 'prevSum', width: 120},
+                {title: '入库数量', field: 'InSum', width: 80},
+                {title: '出库数量', field: 'OutSum', width: 80},
+                {title: '本月结存数量', field: 'thisSum', width: 120},
+                {title: '结存金额', field: 'thisAllPrice', width: 80}
             ]],
             onLoadError: function () {
                 $.messager.alert('页面加载提示', '页面加载异常，请稍后再试！', 'error');
@@ -355,7 +355,7 @@
                                                             if (count.lastIndexOf('.') > -1) {
                                                                 count = count.substring(0, count.lastIndexOf('.') + 3);
                                                             }
-                                                            $("#searchTable .total-count").text("本月合计金额:" + count + "元");//本月合计金额
+                                                            $("#tablePanel .total-count").text("本月合计金额:" + count + "元");//本月合计金额
                                                         }
                                                     }
                                                 },
